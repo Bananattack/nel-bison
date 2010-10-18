@@ -124,3 +124,8 @@ inline unsigned int stringToNumber(const char* text, unsigned int radix)
 
 bool pushInputFile(const char* filename);
 bool popInputFile();
+
+#ifdef _MSC_VER
+#define YY_NO_UNISTD_H 1
+#define isatty(X) (0)
+#endif
