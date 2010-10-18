@@ -1,0 +1,44 @@
+let ppu_ctrl = 0x2000
+let ppu_mask = 0x2001
+let ppu_status = 0x2002
+let ppu_oam_addr = 0x2003
+let ppu_oam_dma = 0x4014
+let ppu_scroll = 0x2005
+let ppu_addr = 0x2006
+let ppu_data = 0x2007
+
+let PPU_CTRL_NAMETABLE_0 = 0x00
+let PPU_CTRL_NAMETABLE_1 = 0x01
+let PPU_CTRL_NAMETABLE_2 = 0x02
+let PPU_CTRL_NAMETABLE_3 = 0x03
+let PPU_CTRL_VRAM_STEP_X = 0x00
+let PPU_CTRL_VRAM_STEP_Y = 0x04
+let PPU_CTRL_SPR_PAT_0 = 0x00
+let PPU_CTRL_SPR_PAT_1 = 0x08
+let PPU_CTRL_BG_PAT_0 = 0x00
+let PPU_CTRL_BG_PAT_1 = 0x10
+let PPU_CTRL_SPR_8x8 = 0x00
+let PPU_CTRL_SPR_8x16 = 0x20
+// 0x40 is unused
+let PPU_CTRL_NMI = 0x80
+let PPU_CTRL_DISABLE = 0x00
+
+let PPU_MASK_GREYSCALE = 0x01
+let PPU_MASK_LEFTMOST_BG = 0x02
+let PPU_MASK_LEFTMOST_SPR = 0x04
+let PPU_MASK_RENDER_BG = 0x08
+let PPU_MASK_RENDER_SPR = 0x10
+let PPU_MASK_INTENSIFY_R = 0x20
+let PPU_MASK_INTENSIFY_G = 0x40
+let PPU_MASK_INTENSIFY_B = 0x80
+let PPU_MASK_DISABLE = 0x00
+let PPU_MASK_ENABLE = 0x1E
+
+let OAM_ATTR_PAL_0 = 0x00
+let OAM_ATTR_PAL_1 = 0x01
+let OAM_ATTR_PAL_2 = 0x02
+let OAM_ATTR_PAL_3 = 0x03
+// 0x04, 0x8, 0x10 are unused
+let OAM_ATTR_BEHIND = 0x20
+let OAM_ATTR_HFLIP = 0x40
+let OAM_ATTR_VFLIP = 0x80

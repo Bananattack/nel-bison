@@ -1,0 +1,94 @@
+ines:
+    mapper = 0,
+    prg = 1,
+    chr = 1,
+    mirroring = 0
+
+
+ram 0x00:
+    var update_sprites : byte
+ram 0x200:
+    var sprite_ram: byte[256]
+
+
+rom bank 0, 0xC000:
+    require 'graphics.nel'
+
+    def reset: begin
+        p: unset decimal, set interrupt
+        x: get #0xff, put s, inc, put @ppu_ctrl, put @ppu_mask
+        begin def wait_for_vbl:
+            a: bit @ppu_status
+            goto wait_for_vbl when not negative
+        end
+        begin def wait_for_vbl:
+            a: bit @ppu_status
+            goto wait_for_vbl when not negative
+        end
+        begin def clear_ram:
+            a: get #0, put @0x00[x], put @0x100[x], put @0x200[x], put @0x300[x], put @0x400[x], put @0x500[x]
+            a: get #0xfe, put @sprite_ram[x]
+            x: inc
+            goto clear_ram when not zero
+        end
+            
+        begin def load_pal:
+            a: get #0x3F, put @ppu_addr, get #0x00, put @ppu_addr
+            x: get #0
+            def loop:
+                a: get @palette[x], put @ppu_data
+                x: inc, compare #0x20
+                goto loop when not zero
+        end
+        
+        begin def init_video:
+            a: get #PPU_CTRL_NMI, put @ppu_ctrl
+            a: get #PPU_MASK_ENABLE, put @ppu_mask
+        end
+            
+        begin def loop:
+            goto loop
+        end
+    end
+
+    def nmi: begin
+        a: push, get x, push, get y, push
+        // Copy sprites?
+        a: get @update_sprites
+        goto cleanup when zero
+            // If so, DMA transfer into OAM.
+            a: get #00, put @ppu_oam_addr, get #02, put @ppu_oam_dma
+            // Clear flag.
+            @update_sprites: dec
+        def cleanup:
+            a: pull, put y, pull, put x, pull
+        rti
+    end
+
+    def irq:
+        a: push, get x, push, get y, push
+        a: pull, get y, pull, get x, pull
+        rti
+
+
+rom bank 1, 0xE000:
+    def palette: begin
+        let PAL_BG = 0x29
+        byte:
+            // Tiles
+            PAL_BG, 0x19, 0x2A, 0x39,
+            PAL_BG, 0x05, 0x05, 0x05,
+            PAL_BG, 0x05, 0x05, 0x05,
+            PAL_BG, 0x05, 0x05, 0x05,
+            // Sprites
+            PAL_BG, 0x08, 0x16, 0x37,
+            PAL_BG, 0x08, 0x11, 0x21,
+            PAL_BG, 0x05, 0x05, 0x05,
+            PAL_BG, 0x05, 0x05, 0x05
+    end
+rom 0xFFFA:
+    word: nmi, reset, irq
+
+
+rom bank 2, 0x0000:
+    embed 'battle_tiles.chr'
