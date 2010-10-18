@@ -193,7 +193,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(ProjectDir)\flex.exe -o../grammar/lex.yy.cpp --header-file=../grammar/lex.yy.h ../grammar/nel.l&#x0D;&#x0A;"
+						CommandLine="&quot;$(ProjectDir)\flex.exe&quot; -o../grammar/lex.yy.cpp --header-file=../grammar/lex.yy.h ../grammar/nel.l&#x0D;&#x0A;"
 						Outputs="../grammar/lex.yy.cpp"
 					/>
 				</FileConfiguration>
