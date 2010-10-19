@@ -17,7 +17,7 @@ LEX_HEADER = grammar/lex.yy.h
 YACC_FILES = grammar/nel.y
 YACC_OUTPUT = grammar/y.tab.cpp
 
-# Information common to both lex and yacc.
+# Information common to both lex and yacc
 COMMON_HEADER = grammar/common.h
 
 # AST related.
