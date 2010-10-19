@@ -195,7 +195,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(ProjectDir)\flex.exe&quot; -o../grammar/lex.yy.cpp --header-file=../grammar/lex.yy.h ../grammar/nel.l&#x0D;&#x0A;"
+						CommandLine="cd msys_deps\bin&#x0D;&#x0A;flex.exe -o&quot;$(ProjectDir)/../grammar/lex.yy.cpp&quot; --header-file=&quot;$(ProjectDir)/../grammar/lex.yy.h&quot; &quot;$(ProjectDir)/../grammar/nel.l&quot;&#x0D;&#x0A;"
 						Outputs="../grammar/lex.yy.cpp"
 					/>
 				</FileConfiguration>
@@ -208,7 +208,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="set BISON_PKGDATADIR=$(ProjectDir)\bison_etc&#x0D;&#x0A;bison -d --debug --verbose -o ../grammar/y.tab.cpp &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="cd msys_deps\bin&#x0D;&#x0A;bison -d --debug --verbose -o&quot;$(ProjectDir)/../grammar/y.tab.cpp&quot; &quot;$(ProjectDir)/../grammar/nel.y&quot;&#x0D;&#x0A;"
 						Outputs="../grammar/y.tab.cpp"
 					/>
 				</FileConfiguration>
