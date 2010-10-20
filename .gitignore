@@ -1,0 +1,12 @@
+win32/*.vcproj.*.user
+win32/Debug
+win32/Release
+win32/*.suo
+win32/*.ncb
+grammar/y.output
+grammar/y.tab.cpp
+grammar/y.tab.hpp
+grammar/lex.yy.cpp
+grammar/lex.yy.h
+ast/*.o
+nel

@@ -87,7 +87,7 @@ namespace nel
         // 5: Number of 8K CHR ROM banks, 0 means this cart has CHR RAM.
         os.put(chr);
         // 6: Write the "Flags 6" byte, skip the 'trainer' flag for now.
-        os.put(mirroring | (battery << 1) | (fourscreen << 3) | ((mapper & 0xF) << 4));
+        os.put((unsigned int) mirroring | (battery << 1) | (fourscreen << 3) | ((mapper & 0xF) << 4));
         // 7: Write the "Flags 7" byte, just the mapper part though.
         os.put(mapper >> 4);
         // 8: Number of 8K PRG RAM banks -- for now just write a 0, which implies 8KB PRG RAM at most.

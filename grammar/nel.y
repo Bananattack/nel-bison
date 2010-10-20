@@ -5,6 +5,12 @@
 #include "lex.yy.h"
 #include <fstream>
 
+#ifdef _MSC_VER
+// bison generates a switch statement which only has
+// a default and no case. MSVC warns. Let's just shut it up.
+#pragma warning(disable:4065)
+#endif
+
 %}
 
 /* Give verbose error messages */
@@ -136,7 +142,7 @@ statement_list:
     statement_list statement
         {
             // Ignore any empty statements.
-            if($2 != NULL)
+            if($2)
             {
                 nel::ListNode<nel::Statement*>* list = NEL_CAST(nel::ListNode<nel::Statement*>*, $1);
                 list->getList().push_back(NEL_CAST(nel::Statement*, $2));
@@ -196,20 +202,20 @@ statement:
         }
     | error
         {
-            $$ = NULL;
+            $$ = 0;
         }
     | PUNC_SEMI
         {
             // Semi-colons are just for syntax comfort to some people.
             // However, these are actually empty statements that take no ROM space.
-            $$ = NULL; 
+            $$ = 0; 
         }
     ;
 
 require_statement:
     KW_REQUIRE STRING
         {
-            $$ = NULL;
+            $$ = 0;
             pushInputFile(NEL_CAST(nel::StringNode*, $2)->getValue().c_str());
         }
     ;
@@ -294,7 +300,7 @@ opt_size:
         }
     | /* empty */
         {
-            $$ = NULL;
+            $$ = 0;
         }
     ;
 
@@ -339,11 +345,11 @@ relocate_statement:
         }
     | KW_ROM expr PUNC_COLON
         {
-            $$ = new nel::RelocationStatement(nel::RelocationStatement::ROM, NULL, NEL_CAST(nel::Expression*, $2), NEL_GET_SOURCE_POS);
+            $$ = new nel::RelocationStatement(nel::RelocationStatement::ROM, 0, NEL_CAST(nel::Expression*, $2), NEL_GET_SOURCE_POS);
         }
     | KW_RAM expr PUNC_COLON
         {
-            $$ = new nel::RelocationStatement(nel::RelocationStatement::RAM, NULL, NEL_CAST(nel::Expression*, $2), NEL_GET_SOURCE_POS);
+            $$ = new nel::RelocationStatement(nel::RelocationStatement::RAM, 0, NEL_CAST(nel::Expression*, $2), NEL_GET_SOURCE_POS);
         }
     ;
     
@@ -354,7 +360,7 @@ bank_optional_origin:
         }
     | /* empty */
         {
-            $$ = NULL;
+            $$ = 0;
         }
 
 data_statement:
@@ -401,7 +407,7 @@ when_condition:
         }
     | /* empty */
         {
-            $$ = NULL;
+            $$ = 0;
         }
     ;
 
@@ -539,12 +545,12 @@ argument:
             if($4 && $6)
             {
                 nel::error("an indirected term cannot be indexed both before and after indirection.", currentPosition);
-                $$ = NULL;
+                $$ = 0;
             }
             else if(!$4 && !$6)
             {
                 nel::error("an indirected term must be indexed in some manner, either before indirection by x or after indirection by y.", currentPosition);
-                $$ = NULL;
+                $$ = 0;
             }
             else if($4)
             {
@@ -560,7 +566,7 @@ argument:
                     std::ostringstream os;
                     os << "an indirected term may only be indexed by x before indirection, not by `" << preIndex->getValue() << "`.";
                     nel::error(os.str(), currentPosition);
-                    $$ = NULL;
+                    $$ = 0;
                 }
             }
             else if($6)
@@ -577,7 +583,7 @@ argument:
                     std::ostringstream os;
                     os << "an indirected term may only be indexed by y after indirection, not by `" << postIndex->getValue() << "`.";
                     nel::error(os.str(), currentPosition);
-                    $$ = NULL;
+                    $$ = 0;
                 }
             }
         }
@@ -647,15 +653,15 @@ opt_register_indexing:
         }
     | /* empty */
         {
-            $$ = NULL;
+            $$ = 0;
         }
     ;
 
 %%
 
-nel::SourcePosition* currentPosition = NULL;
+nel::SourcePosition* currentPosition = 0;
 std::vector<nel::SourcePosition*> includeStack;
-nel::BlockStatement* startNode = NULL;
+nel::BlockStatement* startNode = 0;
 std::string stringContent;
 char stringTerminator;
 
@@ -686,10 +692,14 @@ bool generate()
     return !nel::errorCount;
 }
 
-void printUsage()
+void printUsage(const char* msg = 0)
 {
-    std::cerr << "* " << nel::PROGRAM_NAME << " insufficient arguments" << std::endl;
-    std::cerr << "  usage: " << nel::PROGRAM_NAME << " filename" << std::endl;
+	if(msg)
+	{
+		std::cerr << "* " << nel::PROGRAM_NAME << ": " << msg << std::endl << std::endl;
+	}
+
+    std::cerr << "usage: " << nel::PROGRAM_NAME << " filename" << std::endl;
     std::cerr << "  where `filename` is a nel source file to compile." << std::endl;
 }
 
@@ -780,7 +790,7 @@ int main(int argc, char** argv)
 {
     if(argc < 2)
     {
-        printUsage();
+        printUsage("insufficient arguments");
         return 1;
     }
     
@@ -795,7 +805,7 @@ int main(int argc, char** argv)
     currentPosition = new nel::SourcePosition(new nel::SourceFile(argv[1]));
     stringContent = "";
     stringTerminator = 0;
-    startNode = NULL;
+    startNode = 0;
 
     
     int result = yyparse();

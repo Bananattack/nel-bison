@@ -17,7 +17,7 @@ namespace nel
             // Size of each ROM bank.
             static const unsigned int BANK_SIZE = 8192;
             // Value used to pad unused bank space.
-            static const char PAD_VALUE = 0xFF;
+            static const unsigned char PAD_VALUE = 0xFF;
             
             // Until a ROM relocation occurs, this page has no origin.
             bool originSet;

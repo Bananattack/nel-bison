@@ -47,7 +47,7 @@ namespace nel
             static void exitScope();
         
         private:
-			// The outer scope containing this scope. NULL if it does not apply.
+			// The outer scope containing this, or 0 if it does not apply.
 			SymbolTable* parent;
 			// The symbol table
 			Dictionary dict;
@@ -71,7 +71,7 @@ namespace nel
             
 			/**
              * Attempts to get a symbol (using inheritance setting provided).
-             * Returns NULL on failure.
+             * Returns the symbol if found, and 0 otherwise.
              */
             Definition* tryGet(std::string key, bool useInheritance = true);
 	};

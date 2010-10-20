@@ -89,7 +89,7 @@ namespace nel
             CommandType oldCommandType;
             // The receiver of this command. Filled in by a DirectedCommandStatement.
             Argument* receiver;
-            // The argument to pass this command, might be null. 
+            // The argument to pass this command, might be nothing (0). 
             Argument* argument;
             
         public:
