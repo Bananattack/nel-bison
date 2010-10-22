@@ -1,5 +1,4 @@
 #pragma once
-
 #include "node.h"
 #include "list_node.h"
 #include "number_node.h"
@@ -20,3 +19,4 @@
 #include "constant_declaration.h"
 #include "label_declaration.h"
 #include "variable_declaration.h"
+#include "attribute.h"

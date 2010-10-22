@@ -146,7 +146,7 @@ package mmc3
     let select = 0x8000
     let data = 0x8001
     let mirror = 0xA000
-    let ram = 0xA001
+    let wram = 0xA001
     
     let SELECT_2K_CHR_00 = 0x00
     let SELECT_2K_CHR_08 = 0x01
@@ -162,6 +162,6 @@ package mmc3
     let MIRROR_VERTICAL = 0x0
     let MIRROR_HORIZONTAL = 0x1
     
-    let RAM_READONLY = 0x40
-    let RAM_ENABLE = 0x80
+    let WRAM_READONLY = 0x40
+    let WRAM_ENABLE = 0x80
 end

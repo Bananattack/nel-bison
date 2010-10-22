@@ -233,6 +233,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ast\attribute.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ast\attribute.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ast\block_statement.cpp"
 				>
 			</File>
@@ -386,6 +394,22 @@
 			</File>
 			<File
 				RelativePath="..\ast\operation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ast\package_definition.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ast\package_definition.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ast\path.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ast\path.h"
 				>
 			</File>
 			<File

@@ -2,20 +2,22 @@
 #include <sstream>
 
 #include "error.h"
+#include "path.h"
 #include "rom_generator.h"
 #include "rom_bank.h"
 #include "embed_statement.h"
 
 namespace nel
 {
-    EmbedStatement::EmbedStatement(StringNode* filename, SourcePosition* sourcePosition)
-        : Statement(Statement::EMBED, sourcePosition), filename(filename), filesize(0)
+    EmbedStatement::EmbedStatement(StringNode* relativePath, SourcePosition* sourcePosition)
+        : Statement(Statement::EMBED, sourcePosition), relativePath(relativePath), filesize(0)
     {
+        filename = getDirectory(sourcePosition->getSourceFile()->getFilename()) + relativePath->getValue();
     }
 
     EmbedStatement::~EmbedStatement()
     {
-        delete filename;
+        delete relativePath;
     }
     
     void EmbedStatement::aggregate()
@@ -24,7 +26,7 @@ namespace nel
 
     void EmbedStatement::validate()
     {   
-        std::ifstream file(filename->getValue().c_str(), std::ios::in | std::ios::binary);
+        std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
         
         if(file.good() && file.is_open())
         {
@@ -37,7 +39,7 @@ namespace nel
         else
         {
             std::ostringstream os;
-            os << "could not open file `" << filename->getValue() << "` required by an embed statement";
+            os << "could not open file `" << filename << "` required by an embed statement";
             error(os.str(), getSourcePosition(), true);
             return;
         }
@@ -65,7 +67,7 @@ namespace nel
             return;
         }
         
-        std::ifstream file(filename->getValue().c_str(), std::ios::in | std::ios::binary);
+        std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
         
         if(file.good() && file.is_open())
         {
@@ -81,7 +83,7 @@ namespace nel
         else
         {
             std::ostringstream os;
-            os << "could not open file `" << filename->getValue() << " required by an embed statement";
+            os << "could not open file `" << filename << " required by an embed statement";
             error(os.str(), getSourcePosition(), true);
             return;
         }

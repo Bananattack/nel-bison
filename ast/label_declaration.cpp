@@ -30,7 +30,6 @@ namespace nel
         {
             if(bank->hasOrigin())
             {
-                std::cout << "durf" << bank->getProgramCounter() << std::endl;
                 definition->setLocation(bank->getProgramCounter());
             }
             else

@@ -24,7 +24,7 @@ namespace nel
         unsigned int baseSize = dataType == WORD ? 2 : 1;
         unsigned int size = 0;
         
-        ListNode<DataItem*>::ListType list = items->getList();
+        ListNode<DataItem*>::ListType& list = items->getList();
         
         for(size_t i = 0; i < list.size(); i++)
         {

@@ -65,6 +65,7 @@
 %token KW_END "`end`"
 %token KW_EMBED "`embed`"
 %token KW_REQUIRE "`require`"
+%token KW_PACKAGE "`package`"
 
 %token PUNC_SET "`=`"
 %token PUNC_COLON "`:`"
@@ -118,7 +119,8 @@
                     // delete $$;
                 }
             }
-            program statement_list statement label_statement var_statement
+            // TODO: majorly fix memory cleanup problems.
+            program statement_list statement label_declaration constant_declaration var_declaration
             opt_size goto_statement goto_term relocate_statement data_statement data_list data_term command_statement
             when_condition condition command_list command
             argument numeric_term expr opt_register_indexing
@@ -156,9 +158,9 @@ statement_list:
     ;
 
 statement:
-    KW_BEGIN statement_list KW_END
+    block_statement
         {
-            $$ = new nel::BlockStatement(nel::BlockStatement::SCOPE, NEL_CAST(nel::ListNode<nel::Statement*>*, $2), NEL_GET_SOURCE_POS);
+            $$ = $1;
         }
     | require_statement
         {
@@ -172,15 +174,15 @@ statement:
         {
             $$ = $1;
         }
-    | label_statement
+    | label_declaration
         {
             $$ = $1;
         }
-    | constant_statement
+    | constant_declaration
         {
             $$ = $1;
         }
-    | var_statement
+    | var_declaration
         {
             $$ = $1;
         }
@@ -212,11 +214,23 @@ statement:
         }
     ;
 
+block_statement:
+    KW_BEGIN statement_list KW_END
+        {
+            $$ = new nel::BlockStatement(nel::BlockStatement::SCOPE, NEL_CAST(nel::ListNode<nel::Statement*>*, $2), NEL_GET_SOURCE_POS);
+        }
+    | KW_PACKAGE IDENTIFIER statement_list KW_END
+        {
+			$$ = new nel::BlockStatement(nel::BlockStatement::SCOPE, NEL_CAST(nel::StringNode*, $2), NEL_CAST(nel::ListNode<nel::Statement*>*, $3), NEL_GET_SOURCE_POS);
+        }
+    ;
+
 require_statement:
     KW_REQUIRE STRING
         {
             $$ = 0;
-            pushInputFile(NEL_CAST(nel::StringNode*, $2)->getValue().c_str());
+            // Lookup the relative path to the required input file based on the current source, and add it to the input stack.
+            pushInputFile(std::string(nel::getDirectory(currentPosition->getSourceFile()->getFilename()) + NEL_CAST(nel::StringNode*, $2)->getValue()).c_str());
         }
     ;
 
@@ -255,21 +269,21 @@ header_segment:
     ;
     
 
-label_statement:
+label_declaration:
     KW_DEF IDENTIFIER PUNC_COLON
         {
             $$ = new nel::LabelDeclaration(NEL_CAST(nel::StringNode*, $2), NEL_GET_SOURCE_POS);
         }
     ;
 
-constant_statement:
+constant_declaration:
     KW_LET IDENTIFIER PUNC_SET expr
         {
             $$ = new nel::ConstantDeclaration(NEL_CAST(nel::StringNode*, $2), NEL_CAST(nel::Expression*, $4), NEL_GET_SOURCE_POS);
         }
     ;
 
-var_statement:
+var_declaration:
     KW_VAR identifier_list PUNC_COLON KW_BYTE opt_size
         {
             $$ = new nel::VariableDeclaration(nel::VariableDeclaration::BYTE, NEL_CAST(nel::ListNode<nel::StringNode*>*, $2), NEL_CAST(nel::Expression*, $5), NEL_GET_SOURCE_POS);
@@ -591,9 +605,9 @@ argument:
 
 numeric_term:
     /* A label name */
-    IDENTIFIER
+    attribute
         {
-            $$ = new nel::Expression(NEL_CAST(nel::StringNode*, $1), NEL_GET_SOURCE_POS);
+            $$ = new nel::Expression(new nel::Attribute(NEL_CAST(nel::ListNode<nel::StringNode*>*, $1), NEL_GET_SOURCE_POS), NEL_GET_SOURCE_POS);
         }
     /* A literal number */
     | NUMBER
@@ -604,6 +618,19 @@ numeric_term:
     | PUNC_LPAREN expr PUNC_RPAREN
         {
             $$ = NEL_CAST(nel::Expression*, $2);
+        }
+    ;
+
+attribute:
+    attribute PUNC_DOT IDENTIFIER
+        {
+            nel::ListNode<nel::StringNode*>* list = NEL_CAST(nel::ListNode<nel::StringNode*>*, $1);
+            list->getList().push_back(NEL_CAST(nel::StringNode*, $3));
+            $$ = $1;
+        }
+    | IDENTIFIER
+        {
+            $$ = new nel::ListNode<nel::StringNode*>(NEL_CAST(nel::StringNode*, $1), NEL_GET_SOURCE_POS);
         }
     ;
     
@@ -694,10 +721,10 @@ bool generate()
 
 void printUsage(const char* msg = 0)
 {
-	if(msg)
-	{
-		std::cerr << "* " << nel::PROGRAM_NAME << ": " << msg << std::endl << std::endl;
-	}
+    if(msg)
+    {
+        std::cerr << "* " << nel::PROGRAM_NAME << ": " << msg << std::endl << std::endl;
+    }
 
     std::cerr << "usage: " << nel::PROGRAM_NAME << " filename" << std::endl;
     std::cerr << "  where `filename` is a nel source file to compile." << std::endl;

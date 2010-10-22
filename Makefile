@@ -25,6 +25,7 @@ COMMON_HEADER = grammar/common.h
 AST_HEADERS = \
 	ast/argument.h \
 	ast/ast.h \
+	ast/attribute.h \
 	ast/block_statement.h \
 	ast/branch_condition.h \
 	ast/branch_statement.h \
@@ -47,6 +48,8 @@ AST_HEADERS = \
 	ast/node.h \
 	ast/number_node.h \
 	ast/operation.h \
+	ast/path.h \
+	ast/package_definition.h \
 	ast/relocation_statement.h \
 	ast/rom_bank.h \
 	ast/rom_generator.h \
@@ -61,6 +64,7 @@ AST_HEADERS = \
 	
 AST_OBJS = \
 	ast/argument.o \
+	ast/attribute.o \
 	ast/block_statement.o \
 	ast/branch_condition.o \
 	ast/branch_statement.o \
@@ -78,6 +82,8 @@ AST_OBJS = \
 	ast/label_declaration.o \
 	ast/label_definition.o \
 	ast/operation.o \
+	ast/path.o \
+	ast/package_definition.o \
 	ast/relocation_statement.o \
 	ast/rom_bank.o \
 	ast/rom_generator.o \

@@ -5,16 +5,23 @@
 #include "block_statement.h"
 #include "header_statement.h"
 #include "symbol_table.h"
+#include "package_definition.h"
 
 namespace nel
 {
     BlockStatement::BlockStatement(BlockType blockType, ListNode<Statement*>* statements, SourcePosition* sourcePosition)
-        : Statement(Statement::BLOCK, sourcePosition), blockType(blockType), statements(statements), scope(0)
+        : Statement(Statement::BLOCK, sourcePosition), blockType(blockType), name(0), statements(statements), scope(0)
+    {
+    }
+
+    BlockStatement::BlockStatement(BlockType blockType, StringNode* name, ListNode<Statement*>* statements, SourcePosition* sourcePosition)
+        : Statement(Statement::BLOCK, sourcePosition), blockType(blockType), name(name), statements(statements), scope(0)
     {
     }
     
     BlockStatement::~BlockStatement()
     {
+        delete name;
         delete statements;
         delete scope;
     }
@@ -77,10 +84,29 @@ namespace nel
 
     void BlockStatement::aggregate()
     {
+        // Create scope.
         scope = new SymbolTable(SymbolTable::getActiveScope());
+
+        // If this scope has a name, register that as
+        // a member of the containing scope.
+        if(name)
+        {
+            // Assumes this code will never get executed by the outermost block (before there is an active scope).
+            SymbolTable* outer = SymbolTable::getActiveScope();
+
+            PackageDefinition* package = new PackageDefinition(name->getValue(), scope);
+
+            // Shove the this package into the containing outer scope.
+            outer->put(package, getSourcePosition());
+            // Create a back-reference, so the scope knows it defines a new package,
+            // rather than just sharing a private subset of the outer scope's package.
+            scope->setPackage(package);
+        }
+
+        // Enter the created scope.
         SymbolTable::enterScope(scope);
         
-        ListNode<Statement*>::ListType list = statements->getList();
+        ListNode<Statement*>::ListType& list = statements->getList();
         // First gather all constant definitions in this scope.
         for(size_t i = 0; i < list.size(); i++)
         {
@@ -119,7 +145,7 @@ namespace nel
     {
         SymbolTable::enterScope(scope);
         
-        ListNode<Statement*>::ListType list = statements->getList();
+        ListNode<Statement*>::ListType& list = statements->getList();
         // Check out all the statements that this contains.
         for(size_t i = 0; i < list.size(); i++)
         {
@@ -133,7 +159,7 @@ namespace nel
     {
         SymbolTable::enterScope(scope);
         
-        ListNode<Statement*>::ListType list = statements->getList();
+        ListNode<Statement*>::ListType& list = statements->getList();
         // Check out all the statements that this contains.
         for(size_t i = 0; i < list.size(); i++)
         {

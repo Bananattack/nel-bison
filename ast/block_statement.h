@@ -1,6 +1,7 @@
 #pragma once
 
 #include "statement.h"
+#include "string_node.h"
 #include "list_node.h"
 
 namespace nel
@@ -26,11 +27,13 @@ namespace nel
             
         private:
             BlockType blockType;
+            StringNode* name;
             ListNode<Statement*>* statements;
             SymbolTable* scope;
             
         public:    
             BlockStatement(BlockType blockType, ListNode<Statement*>* statements, SourcePosition* sourcePosition);
+            BlockStatement(BlockType blockType, StringNode* name, ListNode<Statement*>* statements, SourcePosition* sourcePosition);
             ~BlockStatement();
             
         private:
@@ -59,6 +62,15 @@ namespace nel
             SymbolTable* getScope()
             {
                 return scope;
+            }
+
+            /**
+             * Returns the StringNode representing name of this
+             * scope (for packages), or 0 if there is none.
+             */
+            StringNode* getName()
+            {
+                return name;
             }
 
             void aggregate();

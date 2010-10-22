@@ -111,13 +111,6 @@ namespace nel
         }
         else
         {
-            std::cout << "PC = ";
-            std::cout << std::setfill('0') << std::setw(4) << std::hex << ((int) getProgramCounter());
-            std::cout << ": ";
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << ((int) value & 0xFF);
-            std::cout << " ";
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << ((int) (value >> 8) & 0xFF);
-            std::cout << std::endl;
             // Write word in little-endian order.
             data[position++] = value & 0xFF;
             data[position++] = (value >> 8) & 0xFF;

@@ -157,11 +157,6 @@ namespace nel
                         ", pc - label = " << offset << ")";
                     error(os.str(), getSourcePosition());
                 }
-                std::cout << "PC = ";
-                std::cout << std::setfill('0') << std::setw(4) << std::hex << (int) bank->getProgramCounter();
-                std::cout << ": ";
-                std::cout << std::setfill('0') << std::setw(2) << std::hex << (int) ofs;
-                std::cout << std::dec << " (" << offset << ")" << std::endl;
             }
             else
             {

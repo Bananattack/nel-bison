@@ -2,6 +2,7 @@
 
 #include "map.h"
 #include "definition.h"
+#include "package_definition.h"
 
 namespace nel
 {
@@ -49,6 +50,9 @@ namespace nel
         private:
 			// The outer scope containing this, or 0 if it does not apply.
 			SymbolTable* parent;
+            // The package that this scope belongs to either punlicly (this scope is that package),
+            // or privately (an unnamed scope makes a private scope under the last package).
+            PackageDefinition* package;
 			// The symbol table
 			Dictionary dict;
             // Depth of scope relative to other scopes.
@@ -57,6 +61,22 @@ namespace nel
 		public:
 			SymbolTable(SymbolTable* parent = 0);
 			~SymbolTable();
+
+            /**
+             * Returns the package that encloses this scope.
+             */
+            PackageDefinition* getPackage()
+            {
+                return package;
+            }
+
+            /**
+             * Sets the package that encloses this scope.
+             */
+            void setPackage(PackageDefinition* package)
+            {
+                this->package = package;
+            }
 
 			/**
              * Insert symbol into the local scope.
@@ -74,5 +94,17 @@ namespace nel
              * Returns the symbol if found, and 0 otherwise.
              */
             Definition* tryGet(std::string key, bool useInheritance = true);
+
+            /**
+             * Outputs the fully qualified name of this package.
+             */
+            void printFullyQualifiedName(std::ostream& stream);
+
+            /**
+             * Outputs the fully qualified name of a definition, presuming it exists
+             * under this scope. This is essentially a helper for getting
+             * descriptive names back for attributes in packages.
+             */
+            void printFullyQualifiedName(std::ostream& stream, Definition* def);
 	};
 }

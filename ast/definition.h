@@ -34,6 +34,7 @@ namespace nel
                 VARIABLE,   /**< A variable in RAM. */
                 CONSTANT,   /**< A named constant. */
                 LABEL,      /**< A label for code/data. */
+                PACKAGE,    /**< A named scope / namespace. */
             };
             
         private:

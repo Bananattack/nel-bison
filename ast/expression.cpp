@@ -15,8 +15,8 @@ namespace nel
         init();
     }
     
-    Expression::Expression(StringNode* identifier, SourcePosition* sourcePosition)
-        : Node(sourcePosition), expressionType(IDENTIFIER), identifier(identifier)
+    Expression::Expression(Attribute* attribute, SourcePosition* sourcePosition)
+        : Node(sourcePosition), expressionType(ATTRIBUTE), attribute(attribute)
     {
         init();
     }
@@ -34,8 +34,8 @@ namespace nel
             case NUMBER:
                 delete number;
                 break;
-            case IDENTIFIER:
-                delete identifier;
+            case ATTRIBUTE:
+                delete attribute;
                 break;
             case OPERATION:
                 delete operation;
@@ -53,7 +53,7 @@ namespace nel
     
     bool Expression::fold(bool mustFold, bool forbidUndefined, std::vector<Definition*>& expansionStack)
     {
-        // symbolStack contains a stack of all named constants that are being expanded.
+        // expansionStack contains a stack of all named constants that are being expanded.
         // This is the max size that this stack is allowed to grow.
         const unsigned int EXPANSION_STACK_MAX = 16;
         
@@ -70,9 +70,13 @@ namespace nel
                 foldedValue = number->getValue();
                 break;
             }
-            case IDENTIFIER:
+            case ATTRIBUTE:
             {
-                Definition* def = SymbolTable::getActiveScope()->tryGet(identifier->getValue());
+                Definition* def = attribute->findDefinition(forbidUndefined);
+
+                // Get the position of the attribute's first element, used for errors.
+                SourcePosition* pos = attribute->getPieces()->getList().front()->getSourcePosition();
+
                 if(def)
                 {
                     switch(def->getDefinitionType())
@@ -94,7 +98,7 @@ namespace nel
                                     os << std::endl << "    `" << entry->getName() << "` at " <<
                                         entry->getDeclarationPoint();
                                 }
-                                error(os.str(), getSourcePosition(), true);
+                                error(os.str(), pos, true);
                             }
                             else
                             {
@@ -119,20 +123,26 @@ namespace nel
                             foldedValue = var->getOffset();
                             break;
                         }
+                        case Definition::PACKAGE:
+                        {
+                            std::ostringstream os;
+                            os << "package `" << attribute->getName() << "` may not be directly used in a numeric expression because it's a scope, lacking any address or numeric value.";
+                            error(os.str(), pos);
+                            folded = false;
+                            forbidUndefined = true; // this line is to prevent more the general 'indeterminate value' message below.
+                            break;
+                        }
                     }
                 }
                 
-                if(!def && forbidUndefined)
+                // If there is no known value when one is expected, then error.
+                // Another error will trigger instead if undefined attributes are
+                // forbidden on the current compiler pass and the symbol wasn't found.
+                if((def || !forbidUndefined) && !folded && mustFold)
                 {
                     std::ostringstream os;
-                    os << "identifier `" << identifier->getValue() << "` is not defined anywhere.";
-                    error(os.str(), getSourcePosition());
-                }
-                else if(!folded && mustFold)
-                {
-                    std::ostringstream os;
-                    os << "identifier `" << identifier->getValue() << "` has an indeterminate value.";
-                    error(os.str(), getSourcePosition());
+                    os << "attribute `" << attribute->getName() << "` has an indeterminate value.";
+                    error(os.str(), pos);
                 }
                 break;
             }
@@ -220,7 +230,7 @@ namespace nel
                     case Operation::SHL:
                     {
                         // If shifting more than N bits, or ls << rs > 2^N-1, then error.
-                        if(rs > 16 || (rs > 0 && (ls & ~(1 << (16 - rs))) != 0))
+                        if(rs > 16 || rs > 0 && (ls & ~(1 << (16 - rs))) != 0)
                         {
                             error("logical shift left yields result which will overflow outside of 0..65535.", operation->getRight()->getSourcePosition());
                             folded = false;

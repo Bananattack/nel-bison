@@ -11,6 +11,7 @@
 #include "../ast/error.h"
 #include "../ast/rom_generator.h"
 #include "../ast/ast.h"
+#include "../ast/path.h"
 
 /**
  * The type returned by each terminal and rule.

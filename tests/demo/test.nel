@@ -12,17 +12,17 @@ ram 0x200:
 
 
 rom bank 0, 0xC000:
-    require 'graphics.nel'
+    require 'hardware.nel'
 
     def reset: begin
         p: unset decimal, set interrupt
-        x: get #0xff, put s, inc, put @ppu_ctrl, put @ppu_mask
+        x: get #0xff, put s, inc, put @ppu.ctrl, put @ppu.mask
         begin def wait_for_vbl:
-            a: bit @ppu_status
+            a: bit @ppu.status
             goto wait_for_vbl when not negative
         end
         begin def wait_for_vbl:
-            a: bit @ppu_status
+            a: bit @ppu.status
             goto wait_for_vbl when not negative
         end
         begin def clear_ram:
@@ -33,17 +33,17 @@ rom bank 0, 0xC000:
         end
             
         begin def load_pal:
-            a: get #0x3F, put @ppu_addr, get #0x00, put @ppu_addr
+            a: get #0x3F, put @ppu.address, get #0x00, put @ppu.address
             x: get #0
             def loop:
-                a: get @palette[x], put @ppu_data
+                a: get @palette[x], put @ppu.data
                 x: inc, compare #0x20
                 goto loop when not zero
         end
         
         begin def init_video:
-            a: get #PPU_CTRL_NMI, put @ppu_ctrl
-            a: get #PPU_MASK_ENABLE, put @ppu_mask
+            a: get #ppu.CTRL_NMI, put @ppu.ctrl
+            a: get #ppu.MASK_ENABLE, put @ppu.mask
         end
             
         begin def loop:
@@ -57,7 +57,7 @@ rom bank 0, 0xC000:
         a: get @update_sprites
         goto cleanup when zero
             // If so, DMA transfer into OAM.
-            a: get #00, put @ppu_oam_addr, get #02, put @ppu_oam_dma
+            a: get #00, put @ppu.oam.address, get #02, put @ppu.oam.dma
             // Clear flag.
             @update_sprites: dec
         def cleanup:

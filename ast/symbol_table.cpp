@@ -61,9 +61,11 @@ namespace nel
         if(parent)
         {
             depth = parent->depth + 1;
+            package = parent->getPackage();
         }
         else
         {
+            package = 0;
             depth = 0;
         }
     }
@@ -133,5 +135,42 @@ namespace nel
             return 0;
         }
         return it->second;
+    }
+
+    void SymbolTable::printFullyQualifiedName(std::ostream& stream)
+    {
+        // If this scope has a parent, then we need to print out its full name.
+        // Otherwise, this is the outermost program block, which has no package qualifiers anyway.
+        if(parent)
+        {
+            // Print out the parent's qualified name first.
+            parent->printFullyQualifiedName(stream);
+            // Does this scope belong to a package?
+            if(package)
+            {
+                // If parent has a package, and it's different than this one, add a dot, then print the name.
+                if(parent->package && package != parent->package)   
+                {
+                    stream << "." << package->getName();
+                }
+                // If parent has no package, then this is the first package. Print the name.
+                else if(!parent->package)
+                {
+                    stream << package->getName();
+                }
+                // Otherwise it isn't printed (same package as parent).
+            }
+        }
+    }
+
+    void SymbolTable::printFullyQualifiedName(std::ostream& stream, Definition* def)
+    {
+        printFullyQualifiedName(stream);
+        // Add a dot if this scope is a package.
+        if(package)
+        {
+            stream << ".";
+        }
+        stream << def->getName();
     }
 }

@@ -1,0 +1,49 @@
+// Note: this is not an actual program, so don't expect it to run.
+// This is used to test some of the compiler behaviour, particularly error detection.
+ines:
+    mapper = 4,
+    prg = 1,
+    chr = 1,
+    mirroring = 0
+    
+ram 0x00:
+rom bank 0, 0xC000:
+    // Package
+    package A
+        // Nested package
+        package B
+            let c = 1
+            // Private and anonymous scope. These should be inaccessible from outside.
+            begin
+                let e = 1
+                // package inside anonymous scope. will be private
+                package C
+                    let d = 1
+                end
+                
+                // test that those scope members are accessible at this point
+                var v1 : byte[e]
+                var v2 : byte[C.d]
+            end
+        end
+        let d = 2
+    end
+
+    // First pass: Redefinition.
+    //package A
+    //end
+
+    // Second pass:
+    // Error. Packages aren't allowed as expression.
+    a: get #A, get #A.B
+    // Error. Non-existent members.
+    a: get #A.c, get #A.foo
+    // Error: Non-existent members (private scope unreachable from outside)
+    a: get #A.B.C.d, get #A.B.e
+    // Error. Non-existent packages.
+    a: get #B.d, get #A.D.c
+    // These should work.
+    a: get #A.B.c, get #A.d
+    // This should also work because d is accessible in B.
+    a: get #A.b.d
+    

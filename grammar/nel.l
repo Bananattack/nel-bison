@@ -59,6 +59,7 @@
 "end"       return KW_END;
 "embed"     return KW_EMBED;
 "require"   return KW_REQUIRE;
+"package"   return KW_PACKAGE;
 
 \=          return PUNC_SET;
 \:          return PUNC_COLON;

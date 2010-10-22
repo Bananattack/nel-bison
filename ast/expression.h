@@ -4,7 +4,7 @@
 
 #include "node.h"
 #include "number_node.h"
-#include "string_node.h"
+#include "attribute.h"
 #include "operation.h"
 #include "definition.h"
 
@@ -27,7 +27,7 @@ namespace nel
             enum ExpressionType
             {
                 NUMBER,         /**< A numeric term. */
-                IDENTIFIER,     /**< An identifier, naming a constant or label */
+                ATTRIBUTE,      /**< An attribute, naming a constant, variable or label */
                 OPERATION,      /**< An operation to perform. */
             };
 
@@ -37,7 +37,7 @@ namespace nel
             union
             {
                 NumberNode* number;
-                StringNode* identifier;
+                Attribute* attribute;
                 Operation* operation;
             };
             
@@ -46,7 +46,7 @@ namespace nel
             
         public:
             Expression(NumberNode* number, SourcePosition* sourcePosition);
-            Expression(StringNode* identifier, SourcePosition* sourcePosition);
+            Expression(Attribute* attribute, SourcePosition* sourcePosition);
             Expression(Operation* operation, SourcePosition* sourcePosition);
             ~Expression();
             
@@ -75,9 +75,9 @@ namespace nel
             /**
              * Returns the identifier associated with an IDENTIFIER expression, and 0 otherwise.
              */
-            StringNode* getIdentifier()
+            Attribute* getAttribute()
             {
-                return expressionType == IDENTIFIER ? identifier : 0;
+                return expressionType == ATTRIBUTE ? attribute : 0;
             }
 
             /**
